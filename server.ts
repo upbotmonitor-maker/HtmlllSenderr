@@ -150,9 +150,53 @@ Requirements:
       });
     } catch (error: any) {
       console.error('Gemini generation error:', error);
+      
+      let rawMsg = error.message || String(error);
+      let beautifiedMessage = '';
+      
+      try {
+        const trimmedMsg = typeof rawMsg === 'string' ? rawMsg.trim() : '';
+        if (trimmedMsg.startsWith('{') || trimmedMsg.startsWith('[')) {
+          const parsed = JSON.parse(trimmedMsg);
+          const innerError = parsed.error || (Array.isArray(parsed) ? parsed[0]?.error : null);
+          if (innerError) {
+            const code = innerError.code;
+            const msg = innerError.message || '';
+            
+            if (code === 503 || msg.includes('high demand') || msg.includes('UNAVAILABLE') || msg.includes('temporarily unavailable')) {
+              beautifiedMessage = 'Yapay zeka şu anda aşırı yoğunluk yaşıyor (Hata: 503). Lütfen 5-10 saniye bekledikten sonra tekrar deneyiniz.';
+            } else if (code === 429 || msg.includes('Quota exceeded') || msg.includes('rate limit')) {
+              beautifiedMessage = 'Yapay zeka istek limiti aşıldı (Hata: 429). Lütfen bir dakika bekleyip tekrar deneyiniz.';
+            } else if (code === 400 && (msg.includes('API key') || msg.includes('API key not valid'))) {
+              beautifiedMessage = 'Gemini API anahtarı geçersiz veya yetkilendirilmemiş (Hata: 400). Lütfen sunucu ayarlarını veya .env dosyasını kontrol edin.';
+            } else {
+              beautifiedMessage = `Yapay zeka servisi hatası: ${msg} (Kod: ${code})`;
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback to text checks if JSON parsing fails
+      }
+
+      if (!beautifiedMessage) {
+        if (typeof rawMsg === 'string') {
+          if (rawMsg.includes('503') || rawMsg.includes('high demand') || rawMsg.includes('UNAVAILABLE')) {
+            beautifiedMessage = 'Yapay zeka şu anda aşırı yoğunluk yaşıyor (Hata: 503). Lütfen 5-10 saniye bekledikten sonra tekrar deneyiniz.';
+          } else if (rawMsg.includes('429') || rawMsg.includes('quota') || rawMsg.includes('limit')) {
+            beautifiedMessage = 'Yapay zeka istek limiti aşıldı (Hata: 429). Lütfen bir dakika bekleyip tekrar deneyiniz.';
+          } else if (rawMsg.includes('API key') || rawMsg.includes('API_KEY')) {
+            beautifiedMessage = 'Gemini API anahtarı geçersiz veya yapılandırılmamış. Lütfen sunucu ayarlarını kontrol edin.';
+          } else {
+            beautifiedMessage = `Yapay zeka şablonu oluştururken hata oluştu: ${rawMsg}`;
+          }
+        } else {
+          beautifiedMessage = `Yapay zeka şablonu oluştururken hata oluştu: ${rawMsg}`;
+        }
+      }
+
       return res.status(500).json({
         success: false,
-        message: `Yapay zeka şablonu oluştururken hata oluştu: ${error.message || error}`,
+        message: beautifiedMessage,
       });
     }
   });
