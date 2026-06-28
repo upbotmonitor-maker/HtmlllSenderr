@@ -46,13 +46,16 @@ async function startServer() {
     }
 
     try {
-      // Create a transporter using Gmail SMTP
+      // Create a transporter using Gmail SMTP with aggressive timeouts to prevent hanging on blocked environments (like Render.com)
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: fromEmail,
           pass: appPassword,
         },
+        connectionTimeout: 8000, // 8 seconds timeout
+        greetingTimeout: 8000,
+        socketTimeout: 8000,
       });
 
       // Verify connection configuration
@@ -77,12 +80,20 @@ async function startServer() {
       console.error('SMTP sending error:', error);
       let errorFriendlyMessage = error.message || 'E-posta gönderilirken bilinmeyen bir hata oluştu.';
       
-      if (error.code === 'EAUTH') {
+      const isTimeoutOrBlocked = 
+        error.code === 'ETIMEDOUT' || 
+        error.code === 'ESOCKET' || 
+        error.code === 'ECONNREFUSED' || 
+        String(error.message).includes('timeout') || 
+        String(error.message).includes('Timeout') || 
+        error.networkError;
+
+      if (isTimeoutOrBlocked) {
+        errorFriendlyMessage = 'Bağlantı Zaman Aşımı / Port Engeli! Render.com, spam gönderimini önlemek amacıyla varsayılan olarak dışarı giden SMTP portlarını (25, 465, 587) engeller. Bu yüzden bağlantı kurulamadı. Çözüm için: Render.com paneline gidip destek talebi (Support Ticket) oluşturarak "Please unblock outbound SMTP ports for Gmail" diyerek port engellini kaldırtabilir ya da uygulamayı Vercel, Railway veya Kendi Sunucunuza taşıyabilirsiniz.';
+      } else if (error.code === 'EAUTH') {
         errorFriendlyMessage = 'Kimlik doğrulama hatası! Gmail adresinizin ve 16 haneli App Password (Uygulama Şifresi) bilginizin doğru olduğundan ve Gmail ayarlarınızda 2 adımlı doğrulamanın aktif olduğundan emin olun.';
       } else if (error.code === 'EENVELOPE') {
         errorFriendlyMessage = 'Alıcı e-posta adresi biçimi geçersiz. Lütfen alıcı adresini kontrol edin.';
-      } else if (error.networkError) {
-        errorFriendlyMessage = 'Ağ bağlantısı hatası! Sunucu Gmail SMTP sunucusuna bağlanamadı.';
       }
 
       return res.status(500).json({

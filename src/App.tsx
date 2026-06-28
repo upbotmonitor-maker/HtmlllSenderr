@@ -26,13 +26,19 @@ import {
   Plus,
   Loader2,
   Heart,
-  Wand2
+  Wand2,
+  Server,
+  Zap,
+  RefreshCw,
+  ExternalLink,
+  AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   // Theme & Layout Settings
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [showMigrationBanner, setShowMigrationBanner] = useState<boolean>(true);
   
   // SMTP credentials loaded from localStorage
   const [settings, setSettings] = useState<MailSettings>({
@@ -412,6 +418,77 @@ export default function App() {
             </button>
           </div>
         </header>
+
+        {/* Migration Alert & Free Hosting Guide */}
+        <AnimatePresence>
+          {showMigrationBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: -15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              className={`mb-8 p-5 rounded-2xl border ${
+                isDarkMode
+                  ? 'bg-slate-900/60 border-amber-500/30 text-slate-100 shadow-xl shadow-amber-500/5'
+                  : 'bg-amber-500/5 border-amber-500/20 text-slate-800 shadow-lg shadow-amber-500/2'
+              } relative overflow-hidden`}
+              id="migration-announcement-card"
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
+              <div className="flex flex-col md:flex-row items-start gap-4">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 shrink-0">
+                  <AlertTriangle className="w-6 h-6 animate-pulse" />
+                </div>
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-2.5 w-2.5 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                      </span>
+                      <h3 className="text-md font-bold text-amber-500 flex items-center gap-2">
+                        Yeni Sınırsız Sunucumuza Taşınıyoruz! 🚚
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setShowMigrationBanner(false)}
+                      className="text-slate-400 hover:text-white text-xs cursor-pointer px-2.5 py-1 rounded-xl bg-slate-800/40 hover:bg-slate-800 border border-white/5 hover:border-white/10 transition"
+                      id="close-migration-banner-btn"
+                    >
+                      Kapat
+                    </button>
+                  </div>
+                  
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Render.com ücretsiz katmanı, spam gönderimini önlemek amacıyla dışarı giden standart e-posta SMTP portlarını (25, 465, 587) engellemektedir. Bu yüzden doğrudan Gmail SMTP gönderimlerimiz Render üzerinde takılmakta ve zaman aşımına uğramaktadır. 
+                    <strong> Sitemizin Yapay Zeka (Gemini AI) ile Şablon Yazma, Canlı Önizleme ve Şablon Kodlama özellikleri %100 kusursuz ve aktif çalışmaya devam etmektedir!</strong>
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div className="p-4 rounded-xl bg-slate-950/40 border border-white/5 space-y-2">
+                      <h4 className="text-xs font-semibold text-white flex items-center gap-1.5">
+                        <Server className="w-3.5 h-3.5 text-blue-400" />
+                        Nereye Taşınıyoruz?
+                      </h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Uygulamamızı port kısıtlaması bulunmayan <strong>Vercel, Koyeb, Railway</strong> gibi ücretsiz ve ultra hızlı modern bulut altyapılarına geçiriyoruz. Taşınma esnasında şablonlarınızı hazırlayabilir ve indirebilirsiniz.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-slate-950/40 border border-white/5 space-y-2">
+                      <h4 className="text-xs font-semibold text-white flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                        Ücretsiz / Engellemesiz Alternatif Nedir?
+                      </h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Gmail SMTP yerine <strong>Resend (Ayda 3.000 Mail Ücretsiz)</strong> veya <strong>Brevo</strong> REST API'lerini kullanabilirsiniz. HTTPS üzerinden çalıştıkları için Render dahil <strong>tüm sunucularda asla engellenmezler!</strong>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Dynamic Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="main-content-grid">
