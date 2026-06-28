@@ -1,0 +1,6 @@
+{
+  "name": "Mail Sender Pro",
+  "description": "A professional HTML email sender utilizing Gmail SMTP with secure App Passwords, featuring responsive HTML live previews, prebuilt email templates, and an AI template writer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
