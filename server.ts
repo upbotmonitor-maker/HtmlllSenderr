@@ -95,7 +95,7 @@ async function startServer() {
 
   // Helper function to call Gemini with retry logic & fallback models
   async function generateContentWithRetry(aiClient: GoogleGenAI, prompt: string, systemInstruction: string) {
-    const modelsToTry = ['gemini-3.5-flash', 'gemini-flash-latest'];
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
     let lastError: any = null;
 
     for (const model of modelsToTry) {
