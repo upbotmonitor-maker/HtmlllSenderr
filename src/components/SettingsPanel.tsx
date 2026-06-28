@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MailSettings } from '../types';
-import { Mail, Key, Eye, EyeOff, Save, CheckCircle, HelpCircle } from 'lucide-react';
+import { Mail, Key, Eye, EyeOff, Save, CheckCircle, HelpCircle, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface SettingsPanelProps {
@@ -143,6 +143,21 @@ export default function SettingsPanel({ settings, onSave }: SettingsPanelProps) 
           )}
         </AnimatePresence>
       </form>
+
+      <div className="mt-5 pt-4 border-t border-white/5" id="security-notice-box">
+        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-[11px] leading-relaxed text-slate-300">
+          <Shield className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-bold text-emerald-400">🛡️ Güvenlik ve Gizlilik Garantisi</p>
+            <p>
+              Şifreniz ve e-posta adresiniz <strong>asla harici bir sunucuda veya veritabanında saklanmaz</strong>. Bilgileriniz tamamen tarayıcınızın kendi <strong>Yerel Depolama (Local Storage)</strong> alanında barındırılır.
+            </p>
+            <p>
+              E-posta gönderimi esnasında, bilgileriniz doğrudan ve anlık (bellekte geçici olarak) güvenli SSL bağlantısıyla SMTP geçidimize aktarılır. Kodlarımız tamamen şeffaf ve güvenlidir.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
