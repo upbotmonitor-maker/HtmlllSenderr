@@ -95,12 +95,12 @@ async function startServer() {
 
   // Helper function to call Gemini with retry logic & fallback models
   async function generateContentWithRetry(aiClient: GoogleGenAI, prompt: string, systemInstruction: string) {
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-3.5-flash'];
     let lastError: any = null;
 
     for (const model of modelsToTry) {
-      let delay = 1000; // Start with 1 second delay
-      const maxRetries = 3;
+      let delay = 500; // Lower start delay (500ms instead of 1000ms) for speed
+      const maxRetries = 2; // Try max 2 times per model instead of 3 to avoid blocking users
 
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
@@ -132,7 +132,23 @@ async function startServer() {
             throw error;
           }
 
-          // Wait with exponential backoff before next attempt
+          // If the model is overloaded (503) or rate-limited (429), do not wait and retry this model.
+          // Instantly switch to the next model in the list to avoid slowing down the user!
+          if (
+            error.status === 503 || 
+            error.status === 429 || 
+            errMsg.includes('503') || 
+            errMsg.includes('429') || 
+            errMsg.includes('UNAVAILABLE') || 
+            errMsg.includes('high demand') ||
+            errMsg.includes('quota') ||
+            errMsg.includes('limit')
+          ) {
+            console.log(`[Gemini] Model "${model}" is overloaded or rate-limited. Skipping retries and moving to next model immediately...`);
+            break; // Breaks the inner attempt loop, moves to the next fallback model immediately!
+          }
+
+          // Wait with exponential backoff before next attempt (for transient network errors only)
           if (attempt < maxRetries) {
             console.log(`[Gemini] Waiting ${delay}ms before retrying...`);
             await new Promise((resolve) => setTimeout(resolve, delay));
@@ -140,7 +156,7 @@ async function startServer() {
           }
         }
       }
-      console.log(`[Gemini] Model "${model}" failed all attempts. Trying next fallback model...`);
+      console.log(`[Gemini] Model "${model}" failed. Trying next fallback model...`);
     }
 
     throw lastError || new Error('Yapay zeka şablon oluşturma işlemi tüm denemelere rağmen başarısız oldu.');
