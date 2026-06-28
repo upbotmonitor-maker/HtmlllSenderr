@@ -93,6 +93,59 @@ async function startServer() {
     }
   });
 
+  // Helper function to call Gemini with retry logic & fallback models
+  async function generateContentWithRetry(aiClient: GoogleGenAI, prompt: string, systemInstruction: string) {
+    const modelsToTry = ['gemini-3.5-flash', 'gemini-flash-latest'];
+    let lastError: any = null;
+
+    for (const model of modelsToTry) {
+      let delay = 1000; // Start with 1 second delay
+      const maxRetries = 3;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`[Gemini] Attempting generation with model "${model}" (attempt ${attempt}/${maxRetries})...`);
+          const response = await aiClient.models.generateContent({
+            model: model,
+            contents: `Generate an email template for: "${prompt}"`,
+            config: {
+              systemInstruction: systemInstruction,
+              temperature: 0.7,
+            },
+          });
+          if (response && response.text) {
+            console.log(`[Gemini] Successfully generated content using model: ${model}`);
+            return response;
+          }
+          throw new Error('Yapay zeka boş veya geçersiz bir şablon döndürdü.');
+        } catch (error: any) {
+          lastError = error;
+          const errMsg = error.message || String(error);
+          console.error(`[Gemini] Error on model "${model}", attempt ${attempt}:`, errMsg);
+
+          // If it's a non-retryable error (like invalid API key 400), don't bother retrying or switching models
+          if (
+            errMsg.includes('API key') ||
+            errMsg.includes('API_KEY') ||
+            (error.status === 400 && errMsg.includes('key'))
+          ) {
+            throw error;
+          }
+
+          // Wait with exponential backoff before next attempt
+          if (attempt < maxRetries) {
+            console.log(`[Gemini] Waiting ${delay}ms before retrying...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            delay *= 2; // Exponential backoff
+          }
+        }
+      }
+      console.log(`[Gemini] Model "${model}" failed all attempts. Trying next fallback model...`);
+    }
+
+    throw lastError || new Error('Yapay zeka şablon oluşturma işlemi tüm denemelere rağmen başarısız oldu.');
+  }
+
   // API Route: Generate HTML Template with Gemini
   app.post('/api/generate-template', async (req, res) => {
     const { prompt } = req.body;
@@ -121,14 +174,7 @@ Requirements:
 4. Return ONLY valid, complete HTML content starting with '<!DOCTYPE html>' and ending with '</html>'.
 5. DO NOT wrap the output in any markdown tags like \`\`\`html or \`\`\`. Avoid any introduction text or summary. The response MUST be purely the raw HTML code itself, as it will be loaded directly into an editor.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: `Generate an email template for: "${prompt}"`,
-        config: {
-          systemInstruction: systemInstruction,
-          temperature: 0.7,
-        },
-      });
+      const response = await generateContentWithRetry(ai, prompt, systemInstruction);
 
       let html = response.text || '';
 
