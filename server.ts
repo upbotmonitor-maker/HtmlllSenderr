@@ -171,8 +171,24 @@ Requirements:
 1. Use inline CSS styles for high compatibility across all email clients (Gmail, Outlook, Apple Mail, etc.).
 2. Use modern clean colors (dark/light theme elements, sleek panels, borders, typography).
 3. Include structural parts: a beautiful header, clear hierarchy, rich components (like tables, feature cards, social links, or beautifully styled CTA buttons), and a detailed professional footer with links.
-4. Return ONLY valid, complete HTML content starting with '<!DOCTYPE html>' and ending with '</html>'.
-5. DO NOT wrap the output in any markdown tags like \`\`\`html or \`\`\`. Avoid any introduction text or summary. The response MUST be purely the raw HTML code itself, as it will be loaded directly into an editor.`;
+4. IMAGE & LOGO SECURITY RULE:
+   - NEVER use relative or local image paths (e.g. logo.png, cat.jpg, placeholder.png) because they will show as broken.
+   - For logos, use either a beautifully styled text logo with modern typography and borders, OR a clean SVG path inline.
+   - For any photographs, product pictures, or banners, you MUST use real, highly-reliable, royalty-free public URLs from Unsplash or placehold.co.
+     Examples of reliable URLs to use or adapt:
+     * Cat/Pets: https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80
+     * Food/Restaurant: https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80
+     * Technology/Office: https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80
+     * Shopping/E-commerce: https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=600&q=80
+     * Travel/Nature: https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=600&q=80
+     * Generic Corporate Banner: https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80
+     * If you need any other category, use Unsplash with specific IDs or fallback to 'https://placehold.co/600x400/ececec/666666/png?text=Bulten+Gorseli'.
+   - Avoid using broken/random placeholder URLs. Always ensure the "src" attributes point to these valid domains.
+5. ICON SECURITY RULE:
+   - DO NOT use local image files (like icon-facebook.png, icon-mail.png) for social media or UI icons.
+   - Instead, use highly-compatible Unicode Emoji symbols (e.g. ✉️, 📦, 🔒, 📱, 🌐, 💬, 🌟, 🛒, 🎯, ⚙️, 🛡️, 📞, 📍) or beautiful custom Inline SVGs. Emojis and inline SVGs never render as broken image icons!
+6. Return ONLY valid, complete HTML content starting with '<!DOCTYPE html>' and ending with '</html>'.
+7. DO NOT wrap the output in any markdown tags like \`\`\`html or \`\`\`. Avoid any introduction text or summary. The response MUST be purely the raw HTML code itself, as it will be loaded directly into an editor.`;
 
       const response = await generateContentWithRetry(ai, prompt, systemInstruction);
 
