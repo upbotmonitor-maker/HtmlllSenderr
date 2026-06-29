@@ -48,18 +48,15 @@ async function startServer() {
     try {
       console.log(`[SMTP-over-HTTPS] Initiating secure REST delivery for ${fromEmail} via HTTPS Port 443...`);
       
-      const payload = {
-        Host: 'smtp.gmail.com',
-        Username: fromEmail,
-        Password: appPassword,
-        To: toEmail,
-        From: fromEmail,
-        Subject: subject,
-        Body: htmlContent,
-        Action: 'Send'
-      };
-
-      const bodyText = JSON.stringify(payload);
+      const params = new URLSearchParams();
+      params.append('Host', 'smtp.gmail.com');
+      params.append('Username', fromEmail);
+      params.append('Password', appPassword);
+      params.append('To', toEmail);
+      params.append('From', fromEmail);
+      params.append('Subject', subject);
+      params.append('Body', htmlContent);
+      params.append('Action', 'Send');
 
       // Make request to SmtpJS bridge over port 443
       const response = await fetch('https://smtpjs.com/v3/smtpjs.aspx?', {
@@ -67,7 +64,7 @@ async function startServer() {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: bodyText,
+        body: params.toString(),
       });
 
       const responseText = await response.text();
