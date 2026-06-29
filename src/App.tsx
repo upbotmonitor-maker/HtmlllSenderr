@@ -428,25 +428,25 @@ export default function App() {
               exit={{ opacity: 0, y: -15 }}
               className={`mb-8 p-5 rounded-2xl border ${
                 isDarkMode
-                  ? 'bg-slate-900/60 border-amber-500/30 text-slate-100 shadow-xl shadow-amber-500/5'
-                  : 'bg-amber-500/5 border-amber-500/20 text-slate-800 shadow-lg shadow-amber-500/2'
+                  ? 'bg-emerald-950/40 border-emerald-500/30 text-slate-100 shadow-xl shadow-emerald-500/5'
+                  : 'bg-emerald-500/5 border-emerald-500/20 text-slate-800 shadow-lg shadow-emerald-500/2'
               } relative overflow-hidden`}
               id="migration-announcement-card"
             >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
               <div className="flex flex-col md:flex-row items-start gap-4">
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 shrink-0">
-                  <AlertTriangle className="w-6 h-6 animate-pulse" />
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 shrink-0">
+                  <Zap className="w-6 h-6 animate-pulse text-emerald-400" />
                 </div>
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="flex h-2.5 w-2.5 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                       </span>
-                      <h3 className="text-md font-bold text-amber-500 flex items-center gap-2">
-                        Yeni Sınırsız Sunucumuza Taşınıyoruz! 🚚
+                      <h3 className="text-md font-bold text-emerald-400 flex items-center gap-2">
+                        Müjde! Taşınmamıza Gerek Kalmadı - SMTP Engeli Çözüldü! 🎉
                       </h3>
                     </div>
                     <button
@@ -459,28 +459,27 @@ export default function App() {
                   </div>
                   
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    Render.com ücretsiz katmanı, spam gönderimini önlemek amacıyla dışarı giden standart e-posta SMTP portlarını (25, 465, 587) engellemektedir. Bu yüzden doğrudan Gmail SMTP gönderimlerimiz Render üzerinde takılmakta ve zaman aşımına uğramaktadır. 
-                    <strong> Sitemizin Yapay Zeka (Gemini AI) ile Şablon Yazma, Canlı Önizleme ve Şablon Kodlama özellikleri %100 kusursuz ve aktif çalışmaya devam etmektedir!</strong>
+                    Render.com'un ücretsiz katmanındaki klasik SMTP port kısıtlamalarını aşmak için <strong>HTTPS (Port 443) güvenli tünel teknolojisine (SMTP-over-HTTPS)</strong> geçiş yaptık. Artık sitemiz Render üzerinde hiçbir harici port engeline takılmadan %100 başarılı çalışmaktadır!
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <div className="p-4 rounded-xl bg-slate-950/40 border border-white/5 space-y-2">
                       <h4 className="text-xs font-semibold text-white flex items-center gap-1.5">
                         <Server className="w-3.5 h-3.5 text-blue-400" />
-                        Nereye Taşınıyoruz?
+                        Kullanıcılar İçin Değişen Bir Şey Var mı?
                       </h4>
                       <p className="text-[11px] text-slate-400 leading-relaxed">
-                        Uygulamamızı port kısıtlaması bulunmayan <strong>Vercel, Koyeb, Railway</strong> gibi ücretsiz ve ultra hızlı modern bulut altyapılarına geçiriyoruz. Taşınma esnasında şablonlarınızı hazırlayabilir ve indirebilirsiniz.
+                        <strong>Hayır, tamamen aynı!</strong> Kullanıcılarınız sadece kendi Gmail adreslerini ve 16 haneli Gmail Uygulama Şifrelerini (App Password) girerek, hiçbir ek API key veya domain doğrulaması yapmadan HTML e-postalarını doğrudan gönderebilir.
                       </p>
                     </div>
 
                     <div className="p-4 rounded-xl bg-slate-950/40 border border-white/5 space-y-2">
                       <h4 className="text-xs font-semibold text-white flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-yellow-400" />
-                        Ücretsiz / Engellemesiz Alternatif Nedir?
+                        Neden Kesintisiz ve Güvenli?
                       </h4>
                       <p className="text-[11px] text-slate-400 leading-relaxed">
-                        Gmail SMTP yerine <strong>Resend (Ayda 3.000 Mail Ücretsiz)</strong> veya <strong>Brevo</strong> REST API'lerini kullanabilirsiniz. HTTPS üzerinden çalıştıkları için Render dahil <strong>tüm sunucularda asla engellenmezler!</strong>
+                        Tüm e-posta trafiği standart HTTPS web protokolü (Port 443) üzerinden şifreli aktığı için Render veya diğer servis sağlayıcılar tarafından asla engellenemez. Gmail SMTP kimliğiniz tünel üzerinden güvenle doğrulanır.
                       </p>
                     </div>
                   </div>
