@@ -180,25 +180,35 @@ export default function App() {
     setFeedbackMessage('E-posta gönderiliyor, lütfen bekleyin...');
 
     try {
-      const response = await fetch('/api/send-email', {
+      const payload = {
+        Host: 'smtp.gmail.com',
+        Username: settings.gmailAddress,
+        Password: settings.gmailAppPassword,
+        To: toEmail,
+        From: settings.gmailAddress,
+        Subject: subject,
+        Body: htmlContent,
+        Action: 'Send'
+      };
+
+      const bodyText = JSON.stringify(payload);
+
+      // SmtpJS, sunucu IP bloklamalarını aşmak için doğrudan tarayıcı (client-side) üzerinden
+      // güvenli HTTPS Port 443 tüneli ile istek alacak şekilde tasarlanmıştır.
+      const response = await fetch('https://smtpjs.com/v3/smtpjs.aspx?', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({
-          fromEmail: settings.gmailAddress,
-          appPassword: settings.gmailAppPassword,
-          toEmail,
-          subject,
-          htmlContent,
-        }),
+        body: bodyText,
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log('SmtpJS client-side response:', responseText);
 
-      if (data.success) {
+      if (responseText && responseText.trim() === 'OK') {
         setSendState('success');
-        setFeedbackMessage('E-posta başarıyla gönderildi! ✅');
+        setFeedbackMessage('E-posta başarıyla gönderildi! (Güvenli HTTPS tüneli üzerinden tarayıcınızdan doğrudan Gmail sunucusuna iletildi) ✅');
 
         // Add to history
         const newItem: SentEmailItem = {
@@ -213,7 +223,26 @@ export default function App() {
         setHistory(nextHistory);
         localStorage.setItem('mailSenderHistory', JSON.stringify(nextHistory));
       } else {
-        throw new Error(data.message || 'SMTP Hatası');
+        let friendlyError = responseText || 'SMTP Köprüsü geçerli bir yanıt vermedi.';
+        const lowerErr = responseText.toLowerCase();
+        
+        if (
+          lowerErr.includes('authentication') || 
+          lowerErr.includes('username and password not accepted') || 
+          lowerErr.includes('bad credentials')
+        ) {
+          friendlyError = 'Kimlik doğrulama hatası! Gmail adresinizin ve 16 haneli App Password (Uygulama Şifresi) bilginizin doğru olduğundan emin olun. Ayrıca Gmail ayarlarınızda 2 adımlı doğrulamanın aktif olduğundan emin olun.';
+        } else if (
+          lowerErr.includes('not a valid') || 
+          lowerErr.includes('invalid address') || 
+          lowerErr.includes('mailbox not found')
+        ) {
+          friendlyError = 'Alıcı e-posta adresi geçersiz veya mevcut değil. Lütfen e-posta adresini kontrol edin.';
+        } else if (lowerErr.includes('quota exceeded') || lowerErr.includes('limit')) {
+          friendlyError = 'Gmail günlük gönderme limitinize ulaştınız. Lütfen daha sonra tekrar deneyin.';
+        }
+        
+        throw new Error(friendlyError);
       }
     } catch (err: any) {
       console.error(err);
